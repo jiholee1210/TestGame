@@ -9,6 +9,13 @@ public class PlayerMovement : MonoBehaviour
     private bool isJumping = false;
 
     private int jumpCount = 0;
+
+    private bool isDashing = false;
+    private bool canDash = true;
+    private float dashCooldown = 0.5f;
+    private float dashTime = 0.2f;
+    private float playerFace = 1f;
+
     void Start()
     {
         rigidbody = GetComponent<Rigidbody2D>();   
@@ -17,20 +24,28 @@ public class PlayerMovement : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if(Input.GetButtonDown("Jump") && jumpCount < 2) {
+        if(Input.GetButtonDown("Jump") && jumpCount < 2 && !isDashing) {
             isJumping = true;
         }   
+        if(Input.GetKeyDown(KeyCode.LeftShift) && canDash) {
+            isDashing = true;
+        }
     }
 
     void FixedUpdate() {
         Move();
         Jump();
+        StartCoroutine(Dash());
     }
 
     void Move() {
-        float xInput = Input.GetAxisRaw("Horizontal");
-
-        rigidbody.velocity = new Vector2(xInput * 8f, rigidbody.velocity.y);
+        if(!isDashing) {
+            float xInput = Input.GetAxisRaw("Horizontal");
+            if(xInput != 0) {
+                playerFace = xInput;
+            }
+            rigidbody.velocity = new Vector2(xInput * 8f, rigidbody.velocity.y);
+        }
     }
 
     void Jump() {
@@ -43,6 +58,18 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
+    IEnumerator Dash() {
+        if(isDashing) {
+            canDash = false;
+            rigidbody.gravityScale = 0f;
+            rigidbody.velocity = new Vector2(playerFace * 16f, 0f);
+            yield return new WaitForSeconds(dashTime);
+            rigidbody.gravityScale = 2f;
+            isDashing = false;
+            yield return new WaitForSeconds(dashCooldown);
+            canDash = true;
+        }
+    }
     void OnTriggerEnter2D(Collider2D other) {
         if(other.tag == "Platform") {
             jumpCount = 0;
