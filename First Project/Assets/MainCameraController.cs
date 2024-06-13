@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class MainCameraController : MonoBehaviour
 {
-    [SerializeField] Transform player;
+    [SerializeField] Transform player, background;
     [SerializeField] Vector2 minCameraBoundary;
     [SerializeField] Vector2 maxCameraBoundary;
     // Start is called before the first frame update
@@ -26,5 +26,6 @@ public class MainCameraController : MonoBehaviour
         targetPos.y = Mathf.Clamp(targetPos.y, minCameraBoundary.y, maxCameraBoundary.y);
 
         transform.position = targetPos;
+        background.position = new Vector2(targetPos.x, 0);
     }
 }

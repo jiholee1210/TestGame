@@ -72,7 +72,7 @@ public class PlayerMovement : MonoBehaviour
             Debug.Log("점프");
             animator.SetBool("isJumping", true);
             rigidbody.velocity = new Vector2(rigidbody.velocity.x, 0f);
-            rigidbody.AddForce(Vector2.up * 8f, ForceMode2D.Impulse);
+            rigidbody.AddForce(Vector2.up * 10f, ForceMode2D.Impulse);
             jumpCount++;
             isJumping = false;
         }
@@ -101,6 +101,7 @@ public class PlayerMovement : MonoBehaviour
         }
     }
     void OnTriggerEnter2D(Collider2D other) {
+        Debug.Log("충돌 : " + other.tag);
         if(other.tag == "Platform") {
             jumpCount = 0;
             animator.SetBool("isJumping", false);
