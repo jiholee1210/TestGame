@@ -41,7 +41,7 @@ public class PlayerMovement : MonoBehaviour
         if(Input.GetButtonDown("Jump") && jumpCount < 2 && !isDashing) {
             isJumping = true;
         }   
-        if(Input.GetKeyDown(KeyCode.LeftShift) && canDash) {
+        if(Input.GetKeyDown(KeyCode.LeftShift) && canDash && !isDamaged) {
             isDashing = true;
         }
         if(Input.GetKeyDown(KeyCode.Z) && canAttack) {
@@ -101,6 +101,12 @@ public class PlayerMovement : MonoBehaviour
             canDash = false;
             rigidbody.gravityScale = 0f;
             rigidbody.velocity = new Vector2(playerFace * 16f, 0f);
+            // 대쉬 중 피격 판정 => 대쉬 중지
+            if(isDamaged) {
+                Debug.Log("대쉬 코루틴 종료");
+                rigidbody.velocity = Vector2.zero;
+                yield break;
+            }
             yield return new WaitForSeconds(dashTime);
             rigidbody.gravityScale = 2f;
             isDashing = false;
@@ -123,21 +129,44 @@ public class PlayerMovement : MonoBehaviour
         if(other.gameObject.tag == "Enemy") {
             Debug.Log("콜라이더 충돌" + other.gameObject.tag);
             isDamaged = true;
-            StartCoroutine(onDamaged(other.transform.position));
+            OnDamaged(other.transform.position);
             
         }    
     }
 
     // 플레이어 피격 애니메이션 및 기능
-    IEnumerator onDamaged(Vector2 targetPos) {
+    void OnDamaged(Vector2 targetPos) {
         gameObject.layer = 8;
         animator.SetTrigger("Hurt");
         float dir = transform.position.x - targetPos.x >= 0 ? 1f : -1f;
         Debug.Log(dir);
-        rigidbody.AddForce(new Vector2(dir, 0f) * 3f , ForceMode2D.Impulse);
+        rigidbody.velocity = Vector2.zero;
+        StartCoroutine(RecoveryDamage());
+    }
+
+    // 피격 이후 무적 시간 
+    IEnumerator RecoveryDamage() {
         yield return new WaitForSeconds(damagedTime);
         isDamaged = false;
-        yield return new WaitForSeconds(invincibility);
+        Invoke("CheckOverlap", invincibility);
+    }
+
+    // 피격 이후 곧바로 재피격 시
+    void CheckOverlap() {
         gameObject.layer = 7;
+
+        Collider2D[] colliders = Physics2D.OverlapBoxAll(new Vector2(transform.position.x, transform.position.y+1.09f), new Vector2(1f, 3f), 0);
+        foreach(Collider2D collider in colliders) {
+            if(collider.CompareTag("Enemy")) {
+                isDamaged = true;
+                OnDamaged(collider.transform.position);
+                return;
+            }
+        }
+    }
+
+    void OnDrawGizmos() {
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireCube(new Vector2(transform.position.x, transform.position.y+1.09f), new Vector2(1f, 2f));
     }
 }
