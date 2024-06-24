@@ -11,6 +11,7 @@ public class PlayerMovement : MonoBehaviour
     private bool isJumping = false;
     private int jumpCount = 0;
 
+    private bool getDash = false;
     private bool isDashing = false;
     private bool canDash = true;
     private float dashCooldown = 0.5f;
@@ -41,7 +42,7 @@ public class PlayerMovement : MonoBehaviour
         if(Input.GetButtonDown("Jump") && jumpCount < 2 && !isDashing) {
             isJumping = true;
         }   
-        if(Input.GetKeyDown(KeyCode.LeftShift) && canDash && !isDamaged) {
+        if(getDash && Input.GetKeyDown(KeyCode.LeftShift) && canDash && !isDamaged) {
             isDashing = true;
         }
         if(Input.GetKeyDown(KeyCode.Z) && canAttack) {
@@ -78,7 +79,7 @@ public class PlayerMovement : MonoBehaviour
     void Jump() {
         if(isJumping) {
             Debug.Log("점프");
-            animator.SetBool("isJumping", true);
+            //animator.SetBool("isJumping", true);
             rigidbody.velocity = new Vector2(rigidbody.velocity.x, 0f);
             rigidbody.AddForce(Vector2.up * 10f, ForceMode2D.Impulse);
             jumpCount++;
@@ -115,12 +116,17 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
-    // 플레이어 바닥 감지
+    // 플레이어 트리거 감지
     void OnTriggerEnter2D(Collider2D other) {
         Debug.Log("충돌 : " + other.tag);
+        // 바닥 감지
         if(other.tag == "Platform") {
             jumpCount = 0;
             animator.SetBool("isJumping", false);
+        }
+        // 아이템 감지
+        if(other.tag == "Item") {
+            getDash = true;
         }
     }
     
@@ -130,8 +136,14 @@ public class PlayerMovement : MonoBehaviour
             Debug.Log("콜라이더 충돌" + other.gameObject.tag);
             isDamaged = true;
             OnDamaged(other.transform.position);
-            
         }    
+    }
+
+    void OnTriggerExit2D(Collider2D other) {
+        if(other.gameObject.tag == "Platform") {
+            animator.SetBool("isJumping", true);
+            Debug.Log("떨어짐");
+        }
     }
 
     // 플레이어 피격 애니메이션 및 기능

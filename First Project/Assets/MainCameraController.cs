@@ -22,7 +22,7 @@ public class MainCameraController : MonoBehaviour
     void LateUpdate() {
         Vector3 targetPos = new Vector3(player.position.x, player.position.y, this.transform.position.z);
 
-        targetPos.x = Mathf.Clamp(targetPos.x, minCameraBoundary.x, maxCameraBoundary.x);
+        //targetPos.x = Mathf.Clamp(targetPos.x, minCameraBoundary.x, maxCameraBoundary.x);
         targetPos.y = Mathf.Clamp(targetPos.y, minCameraBoundary.y, maxCameraBoundary.y);
 
         transform.position = targetPos;
