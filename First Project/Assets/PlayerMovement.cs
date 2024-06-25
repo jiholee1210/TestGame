@@ -20,11 +20,13 @@ public class PlayerMovement : MonoBehaviour
 
     private bool isAttacking = false;
     private bool canAttack = true;
-    private float attackCooldown = 1f;
+    private float attackCooldown = 0.5f;
 
     private bool isDamaged = false;
     private float damagedTime = 0.2f;
     private float invincibility = 0.7f;
+
+    public GameObject meleeCollider;
 
     SpriteRenderer spriteRenderer;
     Animator animator;
@@ -65,7 +67,9 @@ public class PlayerMovement : MonoBehaviour
             if(xInput != 0) {
                 playerFace = xInput;
             }
-            spriteRenderer.flipX = playerFace > 0 ? true : false;
+            Vector3 newScale = transform.localScale;
+            newScale.x = playerFace > 0 ? -1 : 1;
+            transform.localScale = newScale;
             if(xInput == 0) {
                 animator.SetInteger("AnimState", 0);
             } else {
@@ -140,7 +144,7 @@ public class PlayerMovement : MonoBehaviour
     }
 
     void OnTriggerExit2D(Collider2D other) {
-        if(other.gameObject.tag == "Platform") {
+        if(gameObject.tag == "Player" && other.gameObject.tag == "Platform") {
             animator.SetBool("isJumping", true);
             Debug.Log("떨어짐");
         }
@@ -149,6 +153,7 @@ public class PlayerMovement : MonoBehaviour
     // 플레이어 피격 애니메이션 및 기능
     void OnDamaged(Vector2 targetPos) {
         gameObject.layer = 8;
+        meleeCollider.SetActive(false);
         animator.SetTrigger("Hurt");
         float dir = transform.position.x - targetPos.x >= 0 ? 1f : -1f;
         Debug.Log(dir);
@@ -179,6 +184,7 @@ public class PlayerMovement : MonoBehaviour
 
     void OnDrawGizmos() {
         Gizmos.color = Color.red;
-        Gizmos.DrawWireCube(new Vector2(transform.position.x, transform.position.y+1.09f), new Vector2(1f, 2f));
+        //Gizmos.DrawWireCube(new Vector2(transform.position.x, transform.position.y+1.09f), new Vector2(1f, 2f));
+        //Gizmos.DrawWireCube(pos.position, boxSize);
     }
 }
