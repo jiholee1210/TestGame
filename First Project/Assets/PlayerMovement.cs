@@ -132,6 +132,11 @@ public class PlayerMovement : MonoBehaviour
         if(other.tag == "Item") {
             getDash = true;
         }
+        // 적 감지
+        if(other.tag == "Enemy") {
+            EnemyAI enemy = other.GetComponent<EnemyAI>();
+            StartCoroutine(enemy.TakeDamage(1f));
+        }
     }
     
     // 플레이어 피격 감지
@@ -144,7 +149,7 @@ public class PlayerMovement : MonoBehaviour
     }
 
     void OnTriggerExit2D(Collider2D other) {
-        if(gameObject.tag == "Player" && other.gameObject.tag == "Platform") {
+        if(other.gameObject.tag == "Platform") {
             animator.SetBool("isJumping", true);
             Debug.Log("떨어짐");
         }
@@ -155,8 +160,8 @@ public class PlayerMovement : MonoBehaviour
         gameObject.layer = 8;
         meleeCollider.SetActive(false);
         animator.SetTrigger("Hurt");
-        float dir = transform.position.x - targetPos.x >= 0 ? 1f : -1f;
-        Debug.Log(dir);
+        //float dir = transform.position.x - targetPos.x >= 0 ? 1f : -1f;
+        //Debug.Log(dir);
         rigidbody.velocity = Vector2.zero;
         StartCoroutine(RecoveryDamage());
     }
