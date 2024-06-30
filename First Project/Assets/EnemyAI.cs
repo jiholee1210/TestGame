@@ -8,6 +8,7 @@ public class EnemyAI : MonoBehaviour
     private SpriteRenderer spriteRenderer;
     private Animator animator;
     public Transform playerPos;
+    public GameObject keyPrefab;
 
     private int moveDir = 0;
     private int enemyFace = 0;
@@ -75,6 +76,7 @@ public class EnemyAI : MonoBehaviour
 
     void Die() {
         if(Hp <= 0f) {
+            Instantiate(keyPrefab, transform.position, Quaternion.identity);
             Destroy(gameObject);
         }
     }

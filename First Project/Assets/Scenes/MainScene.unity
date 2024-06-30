@@ -11377,6 +11377,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   playerPos: {fileID: 457431561}
+  keyPrefab: {fileID: 6814148620257412971, guid: 807112427571ee841a09a39a79b06f00, type: 3}
 --- !u!1 &1642321440
 GameObject:
   m_ObjectHideFlags: 0
