@@ -7,24 +7,18 @@ public class PlayerMovement : MonoBehaviour
 {
     // Start is called before the first frame update
     private Rigidbody2D rigidbody;
-    
+
     private bool isJumping = false;
     private int jumpCount = 0;
 
-    private bool getDash = false;
     private bool isDashing = false;
     private bool canDash = true;
-    private float dashCooldown = 0.5f;
-    private float dashTime = 0.2f;
     private float playerFace = 1f;
 
     private bool isAttacking = false;
     private bool canAttack = true;
-    private float attackCooldown = 0.5f;
 
     private bool isDamaged = false;
-    private float damagedTime = 0.2f;
-    private float invincibility = 0.7f;
 
     public GameObject meleeCollider;
 
@@ -44,7 +38,7 @@ public class PlayerMovement : MonoBehaviour
         if(Input.GetButtonDown("Jump") && jumpCount < 2 && !isDashing) {
             isJumping = true;
         }   
-        if(getDash && Input.GetKeyDown(KeyCode.LeftShift) && canDash && !isDamaged) {
+        if(PlayerInventory.Instance.HasItem(Item.ItemType.DashItem) && Input.GetKeyDown(KeyCode.LeftShift) && canDash && !isDamaged) {
             isDashing = true;
         }
         if(Input.GetKeyDown(KeyCode.Z) && canAttack) {
@@ -96,7 +90,7 @@ public class PlayerMovement : MonoBehaviour
             canAttack = false;
             animator.SetTrigger("Attack");
             isAttacking = false;
-            yield return new WaitForSeconds(attackCooldown);
+            yield return new WaitForSeconds(Player.Instance.attackCooldown);
             canAttack = true;
         }
     }
@@ -112,10 +106,10 @@ public class PlayerMovement : MonoBehaviour
                 rigidbody.velocity = Vector2.zero;
                 yield break;
             }
-            yield return new WaitForSeconds(dashTime);
+            yield return new WaitForSeconds(Player.Instance.dashTime);
             rigidbody.gravityScale = 2f;
             isDashing = false;
-            yield return new WaitForSeconds(dashCooldown);
+            yield return new WaitForSeconds(Player.Instance.dashCooldown);
             canDash = true;
         }
     }
@@ -128,14 +122,10 @@ public class PlayerMovement : MonoBehaviour
             jumpCount = 0;
             animator.SetBool("isJumping", false);
         }
-        // 아이템 감지
-        if(other.tag == "Item") {
-            getDash = true;
-        }
         // 적 감지
         if(other.tag == "Enemy") {
             EnemyAI enemy = other.GetComponent<EnemyAI>();
-            StartCoroutine(enemy.TakeDamage(1f));
+            StartCoroutine(enemy.TakeDamage(Player.Instance.attackDmg));
         }
     }
     
@@ -148,6 +138,7 @@ public class PlayerMovement : MonoBehaviour
         }    
     }
 
+    // 플레이어 공중 감지
     void OnTriggerExit2D(Collider2D other) {
         if(other.gameObject.tag == "Platform") {
             animator.SetBool("isJumping", true);
@@ -168,9 +159,9 @@ public class PlayerMovement : MonoBehaviour
 
     // 피격 이후 무적 시간 
     IEnumerator RecoveryDamage() {
-        yield return new WaitForSeconds(damagedTime);
+        yield return new WaitForSeconds(Player.Instance.damagedTime);
         isDamaged = false;
-        Invoke("CheckOverlap", invincibility);
+        Invoke("CheckOverlap", Player.Instance.invincibility);
     }
 
     // 피격 이후 곧바로 재피격 시

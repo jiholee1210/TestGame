@@ -12,8 +12,8 @@ public class EnemyAI : MonoBehaviour
     private int moveDir = 0;
     private int enemyFace = 0;
 
-    private float maxHp = 10;
-    private float Hp = 10;
+    private float maxHp = 1000;
+    private float Hp = 1000;
     
     private bool isDamaged = false;
     // Start is called before the first frame update
@@ -64,12 +64,12 @@ public class EnemyAI : MonoBehaviour
         Hp -= damage;
         Debug.Log("적 체력 : " + Hp);
 
-        Vector2 damagedPos = playerPos.position.x > transform.position.x ? new Vector2(-3, 0) : new Vector2(3, 0);
+        Vector3 damagedPos = playerPos.position.x > transform.position.x ? new Vector3(-0.3f, 0, 0) : new Vector3(0.3f, 0, 0);
         Debug.Log(damagedPos);
 
-        rigidbody.velocity = Vector2.zero;
-        rigidbody.AddForce(damagedPos, ForceMode2D.Impulse);
-        yield return new WaitForSeconds(1.5f);
+        transform.position += damagedPos;
+
+        yield return new WaitForSeconds(0.2f);
         isDamaged = false;
     }
 
